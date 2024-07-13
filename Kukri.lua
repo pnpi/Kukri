@@ -39,8 +39,8 @@ _G.Kukri = {
 
 	Miscellaneous = {
 		Rotate = {
-			Speed = 0,
-			Degrees = 0
+			Speed = 3,
+			Degrees = 360
 		}
 	}
 }
@@ -145,7 +145,7 @@ function GlobalEnvironment.GetTarget()
 	return closestPart, closestTarget
 end
 
-function GlobalEnvironment.onRenderStepped()
+function GlobalEnvironment.Call()
 	if GlobalEnvironment.Part and GlobalEnvironment.Target then
 		print("Part: " .. tostring(GlobalEnvironment.Part))
 		print("Target: " .. GlobalEnvironment.Target.Name)
@@ -154,7 +154,7 @@ end
 
 -- FOV Functions
 
-function FOV.onRenderStepped()
+function FOV.Call()
 	local Circle = FOV.Circle
 
 	Circle.Color = FOV.Color 
@@ -223,7 +223,7 @@ function Tween.Create()
 	return TweenService:Create(CurrentCamera, tweenInfo, {CFrame = CFrame.new(CurrentCamera.CFrame.Position, GlobalEnvironment.Part.Position)})
 end
 
-function Tween.onRenderStepped()
+function Tween.Call()
 	if GlobalEnvironment.Found and GlobalEnvironment.Part and GlobalEnvironment.Target then 
 		if not Exceptions.exceptTeam() and not Exceptions.exceptDeath() and not Exceptions.exceptSurface() then 
 			local TweenAnimation = Tween.Create()
@@ -232,6 +232,28 @@ function Tween.onRenderStepped()
 			GlobalEnvironment.Found = false
 			GlobalEnvironment.Part = nil 
 		end 
+	end
+end
+
+-- Miscellaneous Functions 
+
+Rotate.Endpoint = 0
+Rotate.Original = false 
+
+function Rotate.Call()
+	local Class = Rotate 
+	
+	if Class.Original then 
+		local Rotation = Class.Degrees * Class.Speed 
+		local Steps = math.rad(Rotation * RenderStepped:Wait())
+		Class.EndPoint = Class.EndPoint + Steps 
+		
+		CurrentCamera.CFrame = CurrentCamera.CFrame * CFrame.fromEulerAnglesXYZ(0, Steps, 0)
+		
+		if Class.EndPoint >= 6.2831853071796 then 
+			Class.Original = false
+			Class.EndPoint = 0
+		end
 	end
 end
 
@@ -251,6 +273,11 @@ InputBegan:Connect(function(InputObject, gameProcessedEvent)
 	elseif Check(Binds.Tween) then 
 		GlobalEnvironment.Found = true 
 		GlobalEnvironment.Part, GlobalEnvironment.Target = GlobalEnvironment.GetTarget()
+	elseif Check(Binds.Rotate) then 
+		if not Rotate.Original then 
+			Rotate.Original = true
+			Rotate.EndPoint = 0 
+		end
 	end
 end)
 
@@ -270,7 +297,8 @@ InputEnded:Connect(function(InputObject, gameProcessedEvent)
 end)
 
 RenderStepped:Connect(function() 
-	FOV.onRenderStepped()
-	Tween.onRenderStepped()
-	GlobalEnvironment.onRenderStepped()
+	FOV.Call()
+	Tween.Call()
+	Rotate.Call()
+	GlobalEnvironment.Call()
 end)
