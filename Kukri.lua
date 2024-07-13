@@ -17,7 +17,7 @@ _G.Kukri = {
 		Exceptions = {
 			Team = true,
 			Death = true,
-			Group = true,
+			Group = false,
 			Client = true,
 			Downed = true,
 			Friend = true,
@@ -77,6 +77,7 @@ local GetGuiInset = GuiService:GetGuiInset()
 local RunService = game:GetService("RunService")
 local RenderStepped = RunService.RenderStepped
 
+local GroupService = game:GetService("GroupService")
 local TweenService = game:GetService("TweenService")
 
 local UserInputService = game:GetService("UserInputService")
@@ -100,7 +101,23 @@ function GlobalEnvironment.GetTarget()
 			return Exceptions.Client and Target == LocalPlayer
 		end
 
-		if not exceptClient() and Target.Character then 
+		local function exceptGroup()
+			if Exceptions.Group then
+				local playerGroups = GroupService:GetGroupsAsync(LocalPlayer.UserId)
+				for _, group in ipairs(playerGroups) do
+					if Target:IsInGroup(group.Id) then
+						return true
+					end
+				end
+			end
+			return false
+		end
+
+		local function exceptFriend()
+			return Exceptions.Friend and LocalPlayer:IsFriendsWith(Target.UserId)
+		end
+
+		if not exceptClient() and not exceptFriend() and not exceptGroup() and Target.Character then 
 			local Character = Target.Character 
 			local PrimaryPart = Character.PrimaryPart
 
@@ -242,14 +259,14 @@ Rotate.Original = false
 
 function Rotate.Call()
 	local Class = Rotate 
-	
+
 	if Class.Original then 
 		local Rotation = Class.Degrees * Class.Speed 
 		local Steps = math.rad(Rotation * RenderStepped:Wait())
 		Class.EndPoint = Class.EndPoint + Steps 
-		
+
 		CurrentCamera.CFrame = CurrentCamera.CFrame * CFrame.fromEulerAnglesXYZ(0, Steps, 0)
-		
+
 		if Class.EndPoint >= 6.2831853071796 then 
 			Class.Original = false
 			Class.EndPoint = 0
