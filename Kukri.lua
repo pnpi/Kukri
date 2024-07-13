@@ -152,6 +152,20 @@ function GlobalEnvironment.onRenderStepped()
 	end
 end
 
+-- FOV Functions
+
+function FOV.onRenderStepped()
+	local Circle = FOV.Circle
+
+	Circle.Color = FOV.Color 
+	Circle.Filled = FOV.Filled
+	Circle.Radius = FOV.Radius 
+	Circle.Visible = FOV.Visible 
+	Circle.Thickness = FOV.Thickness
+	Circle.Transparency = FOV.Transparency
+	Circle.Position = GlobalEnvironment.GetMouseLocationV2()
+end
+
 -- Tween / Tween.Exceptions Functions 
 
 function Exceptions.exceptSurface()
@@ -220,19 +234,7 @@ function Tween.onRenderStepped()
 	end
 end
 
--- FOV Functions
-
-function FOV.onRenderStepped()
-	local Circle = FOV.Circle
-
-	Circle.Color = FOV.Color 
-	Circle.Filled = FOV.Filled
-	Circle.Radius = FOV.Radius 
-	Circle.Visible = FOV.Visible 
-	Circle.Thickness = FOV.Thickness
-	Circle.Transparency = FOV.Transparency
-	Circle.Position = GlobalEnvironment.GetMouseLocationV2()
-end
+-- Events
 
 InputBegan:Connect(function(InputObject, gameProcessedEvent) 
     if InputObject.UserInputType == Enum.UserInputType.MouseButton2 then 
