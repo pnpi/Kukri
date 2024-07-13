@@ -149,7 +149,7 @@ function GlobalEnvironment.onRenderStepped()
 	if GlobalEnvironment.Part and GlobalEnvironment.Target then
 		print("Part: " .. tostring(GlobalEnvironment.Part))
 		print("Target: " .. GlobalEnvironment.Target.Name)
-    end
+	end
 end
 
 -- FOV Functions
@@ -230,9 +230,9 @@ function Tween.onRenderStepped()
 			TweenAnimation:Play()
 		else
 			GlobalEnvironment.Found = false
-            GlobalEnvironment.Part = nil 
+			GlobalEnvironment.Part = nil 
 		end 
-    end
+	end
 end
 
 -- Events
@@ -245,7 +245,7 @@ InputBegan:Connect(function(InputObject, gameProcessedEvent)
 			return false
 		end
 	end
-	
+
 	if Check(Binds.FOV) then 
 		FOV.Visible = not FOV.Visible 
 	elseif Check(Binds.Tween) then 
@@ -262,15 +262,15 @@ InputEnded:Connect(function(InputObject, gameProcessedEvent)
 			return false
 		end
 	end
-	
+
 	if Check(Binds.Tween) then 
 		GlobalEnvironment.Found = false
-        GlobalEnvironment.Part = nil
+		GlobalEnvironment.Part = nil
 	end
 end)
 
 RenderStepped:Connect(function() 
 	FOV.onRenderStepped()
 	Tween.onRenderStepped()
-    GlobalEnvironment.onRenderStepped()
+	GlobalEnvironment.onRenderStepped()
 end)
