@@ -1,8 +1,8 @@
 -- Global Environment / Global Environment Variables 
 _G.Kukri = {
 	Binds =  {
-		FOV = Enum.KeyCode.A,
-		Tween = Enum.KeyCode.B,
+		FOV = Enum.UserInputType.MouseButton1,
+		Tween = Enum.UserInputType.MouseButton2,
 		Rotate = Enum.KeyCode.C
 	},
 
@@ -149,7 +149,7 @@ function GlobalEnvironment.onRenderStepped()
 	if GlobalEnvironment.Part and GlobalEnvironment.Target then
 		print("Part: " .. tostring(GlobalEnvironment.Part))
 		print("Target: " .. GlobalEnvironment.Target.Name)
-	end
+    end
 end
 
 -- FOV Functions
@@ -209,7 +209,7 @@ function Exceptions.exceptDeath()
 				end
 			end
 
-			if Exceptions.Death and Humanoid.Health > GetMin() then
+			if Exceptions.Death and Humanoid.Health < GetMin() then
 				return true 
 			end
 		end
@@ -229,28 +229,48 @@ function Tween.onRenderStepped()
 			local TweenAnimation = Tween.Create()
 			TweenAnimation:Play()
 		else
-			GlobalEnvironment.Found = false  
+			GlobalEnvironment.Found = false
+            GlobalEnvironment.Part = nil 
 		end 
-	end
+    end
 end
 
 -- Events
 
-InputBegan:Connect(function(InputObject, gameProcessedEvent) 
-    if InputObject.UserInputType == Enum.UserInputType.MouseButton2 then 
-        GlobalEnvironment.Found = true 
-        GlobalEnvironment.Part, GlobalEnvironment.Target = GlobalEnvironment.GetTarget()
-    end
+InputBegan:Connect(function(InputObject, gameProcessedEvent)
+	local function Check(Bind)
+		if (InputObject.KeyCode == Bind or InputObject.UserInputType == Bind) and Bind ~= "None" then 
+			return true 
+		else 
+			return false
+		end
+	end
+	
+	if Check(Binds.FOV) then 
+		FOV.Visible = not FOV.Visible 
+	elseif Check(Binds.Tween) then 
+		GlobalEnvironment.Found = true 
+		GlobalEnvironment.Part, GlobalEnvironment.Target = GlobalEnvironment.GetTarget()
+	end
 end)
 
 InputEnded:Connect(function(InputObject, gameProcessedEvent)
-    if InputObject.UserInputType == Enum.UserInputType.MouseButton2 then 
-        GlobalEnvironment.Found = false 
-    end
+	local function Check(Bind)
+		if (InputObject.KeyCode == Bind or InputObject.UserInputType == Bind) and Bind ~= "None" then 
+			return true 
+		else 
+			return false
+		end
+	end
+	
+	if Check(Binds.Tween) then 
+		GlobalEnvironment.Found = false
+        GlobalEnvironment.Part = nil
+	end
 end)
 
 RenderStepped:Connect(function() 
 	FOV.onRenderStepped()
-	GlobalEnvironment.onRenderStepped()
 	Tween.onRenderStepped()
+    GlobalEnvironment.onRenderStepped()
 end)
